@@ -140,7 +140,7 @@ const hostPage4 = (req, res) => {
   };
 
   readAllDogs(req, res, callback);
-}
+};
 
 // function to handle get request to send the name
 // controller functions in Express receive the full HTTP request
@@ -261,7 +261,7 @@ const updateLast = (req, res) => {
   savePromise.catch((err) => res.status(500).json({ err }));
 };
 
-//function to handle a request to add a dog
+// function to handle a request to add a dog
 const setDog = (req, res) => {
   // check if the required fields exist
   // normally you would also perform validation
@@ -294,11 +294,10 @@ const setDog = (req, res) => {
   savePromise.catch((err) => res.status(500).json({ err }));
 
   return res;
-}
-
+};
 
 const searchDog = (req, res) => {
-    // check if there is a query parameter for name
+  // check if there is a query parameter for name
   // BUT WAIT!!?!
   // Why is this req.query and not req.body like the others
   // This is a GET request. Those come as query parameters in the URL
@@ -329,12 +328,18 @@ const searchDog = (req, res) => {
     }
 
     // if a match, update age and send the match back
-    doc.age++;
+    // send to database - save is a smart update or add
+    const savePromise = doc.save();
+
+    savePromise.then(() => res.json({
+      name: doc.name,
+      breed: doc.breed,
+      age: doc.age + 1,
+    }));
+
     return res.json({ name: doc.name, breed: doc.breed, age: doc.age });
   });
-}
-
-
+};
 
 // function to handle a request to any non-real resources (404)
 // controller functions in Express receive the full HTTP request
