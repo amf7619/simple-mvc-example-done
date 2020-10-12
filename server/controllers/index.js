@@ -98,7 +98,7 @@ const hostPage1 = (req, res) => {
     return res.render('page1', { cats: docs });
   };
 
-  readAllDogs(req, res, callback);
+  readAllCats(req, res, callback);
 };
 
 // function to handle requests to the page2 page
@@ -139,7 +139,7 @@ const hostPage4 = (req, res) => {
     return res.render('page4', { dogs: docs });
   };
 
-  readAllCats(req, res, callback);
+  readAllDogs(req, res, callback);
 }
 
 // function to handle get request to send the name
