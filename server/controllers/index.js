@@ -327,17 +327,8 @@ const searchDog = (req, res) => {
       return res.json({ error: 'No dogs found' });
     }
 
-    // if a match, update age and send the match back
-    // send to database - save is a smart update or add
-    const savePromise = doc.save();
-
-    savePromise.then(() => res.json({
-      name: doc.name,
-      breed: doc.breed,
-      age: doc.age + 1,
-    }));
-
-    return res.json({ name: doc.name, breed: doc.breed, age: doc.age });
+    let newAge = doc.age + 1;
+    Dog.findOneAndUpdate(doc.name, {name: doc.name, age: newAge, breed: doc.breed});
   });
 };
 
