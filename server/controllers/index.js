@@ -46,6 +46,19 @@ const readAllCats = (req, res, callback) => {
   Cat.find(callback).lean();
 };
 
+const readAllDogs = (req, res, callback) => {
+  // Call the model's built in find function and provide it a
+  // callback to run when the query is complete
+  // Find has several versions
+  // one parameter is just the callback
+  // two parameters is JSON of search criteria and callback.
+  // That limits your search to only things that match the criteria
+  // The find function returns an array of matching objects
+  // The lean function will force find to return data in the js
+  // object format, rather than the Mongo document format.
+  Dog.find(callback).lean();
+};
+
 // function to find a specific cat on request.
 // Express functions always receive the request and the response.
 const readCat = (req, res) => {
@@ -85,7 +98,7 @@ const hostPage1 = (req, res) => {
     return res.render('page1', { cats: docs });
   };
 
-  readAllCats(req, res, callback);
+  readAllDogs(req, res, callback);
 };
 
 // function to handle requests to the page2 page
@@ -115,7 +128,18 @@ const hostPage3 = (req, res) => {
 };
 
 const hostPage4 = (req, res) => {
-  res.render('page4');
+  // function to call when we get objects back from the database.
+  // With Mongoose's find functions, you will get an err and doc(s) back
+  const callback = (err, docs) => {
+    if (err) {
+      return res.status(500).json({ err }); // if error, return it
+    }
+
+    // return success
+    return res.render('page2', { dogs: docs });
+  };
+
+  readAllCats(req, res, callback);
 }
 
 // function to handle get request to send the name
