@@ -327,11 +327,8 @@ const searchDog = (req, res) => {
       return res.json({ error: 'No dogs found' });
     }
 
-    const newDoc = {
-      name: doc.name,
-      age: doc.age + 1,
-      breed: doc.breed,
-    };
+    const newDoc = doc;
+    newDoc.age++;
 
     // send to database - save is a smart update or add
     const savePromise = newDoc.save();
