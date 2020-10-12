@@ -327,8 +327,13 @@ const searchDog = (req, res) => {
       return res.json({ error: 'No dogs found' });
     }
 
-    let newAge = doc.age + 1;
-    Dog.findOneAndUpdate(doc.name, {name: doc.name, age: newAge, breed: doc.breed});
+    const newDogData = {
+      name: doc.name,
+      age: doc.age + 1,
+      breed: doc.breed,
+    };
+
+    return Dog.findOneAndUpdate(doc, new Dog(newDogData));
   });
 };
 
