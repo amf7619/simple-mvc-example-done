@@ -3,6 +3,7 @@ const models = require('../models');
 
 // get the Cat model
 const Cat = models.Cat.CatModel;
+const Dog = models.Dog.DogModel;
 
 // default fake data so that we have something to work with until we make a real Cat
 const defaultData = {
@@ -44,7 +45,6 @@ const readAllCats = (req, res, callback) => {
   // object format, rather than the Mongo document format.
   Cat.find(callback).lean();
 };
-
 
 // function to find a specific cat on request.
 // Express functions always receive the request and the response.
@@ -105,14 +105,18 @@ const hostPage2 = (req, res) => {
 // controller functions in Express receive the full HTTP request
 // and a pre-filled out response object to send
 const hostPage3 = (req, res) => {
-    // res.render takes a name of a page to render.
-    // These must be in the folder you specified as views in your main app.js file
-    // Additionally, you don't need .jade because you registered the file type
-    // in the app.js as jade. Calling res.render('index')
-    // actually calls index.jade. A second parameter of JSON can be passed
-    // into the jade to be used as variables with #{varName}
+  // res.render takes a name of a page to render.
+  // These must be in the folder you specified as views in your main app.js file
+  // Additionally, you don't need .jade because you registered the file type
+  // in the app.js as jade. Calling res.render('index')
+  // actually calls index.jade. A second parameter of JSON can be passed
+  // into the jade to be used as variables with #{varName}
   res.render('page3');
 };
+
+const hostPage4 = (req, res) => {
+  res.render('page4');
+}
 
 // function to handle get request to send the name
 // controller functions in Express receive the full HTTP request
@@ -167,7 +171,6 @@ const setName = (req, res) => {
 
   return res;
 };
-
 
 // function to handle requests search for a name and return the object
 // controller functions in Express receive the full HTTP request
@@ -234,6 +237,80 @@ const updateLast = (req, res) => {
   savePromise.catch((err) => res.status(500).json({ err }));
 };
 
+//function to handle a request to add a dog
+const setDog = (req, res) => {
+  // check if the required fields exist
+  // normally you would also perform validation
+  // to know if the data they sent you was real
+  if (!req.body.dogname || !req.body.dogbreed || !req.body.dogage) {
+    // if not respond with a 400 error
+    // (either through json or a web page depending on the client dev)
+    return res.status(400).json({ error: 'dogname,dogbreed and dogage are all required' });
+  }
+
+  // dummy JSON to insert into database
+  const dogData = {
+    name: req.body.dogname,
+    breed: req.body.dogbreed,
+    age: req.body.dogage,
+  };
+
+  // create a new object of DogModel with the object to save
+  const newDog = new Dog(dogData);
+
+  // create new save promise for the database
+  const savePromise = newDog.save();
+
+  savePromise.then(() => {
+    // return success
+    res.json({ name: newDog.name, breed: newDog.breed, age: newDog.age });
+  });
+
+  // if error, return it
+  savePromise.catch((err) => res.status(500).json({ err }));
+
+  return res;
+}
+
+
+const searchDog = (req, res) => {
+    // check if there is a query parameter for name
+  // BUT WAIT!!?!
+  // Why is this req.query and not req.body like the others
+  // This is a GET request. Those come as query parameters in the URL
+  // For POST requests like the other ones in here, those come in a
+  // request body because they aren't a query
+  // POSTS send data to add while GETS query for a page or data (such as a search)
+  if (!req.query.name) {
+    return res.status(400).json({ error: 'Name is required to perform a search' });
+  }
+
+  // Call our Dog's static findByName function.
+  // Since this is a static function, we can just call it without an object
+  // pass in a callback (like we specified in the Dog model
+  // Normally would you break this code up, but I'm trying to keep it
+  // together so it's easier to see how the system works
+  // For that reason, I gave it an anonymous callback instead of a
+  // named function you'd have to go find
+  return Dog.findByName(req.query.name, (err, doc) => {
+    // errs, handle them
+    if (err) {
+      return res.status(500).json({ err }); // if error, return it
+    }
+
+    // if no matches, let them know
+    // (does not necessarily have to be an error since technically it worked correctly)
+    if (!doc) {
+      return res.json({ error: 'No dogs found' });
+    }
+
+    // if a match, send the match back
+    return res.json({ name: doc.name, breed: doc.breed, age: doc.age });
+  });
+}
+
+
+
 // function to handle a request to any non-real resources (404)
 // controller functions in Express receive the full HTTP request
 // and get a pre-filled out response object to send
@@ -255,10 +332,13 @@ module.exports = {
   page1: hostPage1,
   page2: hostPage2,
   page3: hostPage3,
+  page4: hostPage4,
   readCat,
   getName,
+  setDog,
   setName,
   updateLast,
   searchName,
+  searchDog,
   notFound,
 };
