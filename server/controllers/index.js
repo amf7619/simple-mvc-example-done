@@ -327,9 +327,28 @@ const searchDog = (req, res) => {
       return res.json({ error: 'No dogs found' });
     }
 
-    const newAge = doc.age + 1;
+    const newDoc = {
+      name: doc.name,
+      age: doc.age + 1,
+      breed: doc.breed,
+    };
 
-    return Dog.findOneAndUpdate({ name: doc.name }, { age: newAge });
+    // send to database - save is a smart update or add
+    const savePromise = newDoc.save();
+
+    savePromise.then(() => res.json({
+      name: newDoc.name,
+      breed: newDoc.breed,
+      age: newDoc.age,
+    }));
+
+    savePromise.catch((err1) => {
+      res.status(500).json({
+        err1,
+      });
+    }); // end promise catch
+
+    return res.json({ name: newDoc.name, breed: newDoc.breed, age: newDoc.age });
   });
 };
 
