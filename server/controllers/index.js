@@ -136,7 +136,7 @@ const hostPage4 = (req, res) => {
     }
 
     // return success
-    return res.render('page2', { dogs: docs });
+    return res.render('page4', { dogs: docs });
   };
 
   readAllCats(req, res, callback);
